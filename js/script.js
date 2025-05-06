@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxDays = WEEKS_BACK * 7;
 
   // ── 日付を「きのう」から古い方へ調べる
-  for (let off = 1; off <= maxDays; off++) {
+  for (let off = 0; off <= maxDays; off++) {
     const d = new Date(today.getTime() - off * MS_PER_DAY);
     const dow = d.getDay();                // 0=日 … 6=土
     if (!TIMES_BY_DOW[dow]) continue;      // 火水木以外はスキップ
