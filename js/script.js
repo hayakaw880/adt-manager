@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const MS_PER_DAY = 86_400_000;
   const maxDays = WEEKS_BACK * 7;
 
-  // ── 日付を「きのう」から古い方へ調べる
+  // ── 日付を今日から古い方へ調べる
   for (let off = 0; off <= maxDays; off++) {
     const d = new Date(today.getTime() - off * MS_PER_DAY);
     const dow = d.getDay();                // 0=日 … 6=土
