@@ -17,10 +17,49 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const tbody = document.getElementById('schedule-body');
+  const table = document.querySelector('table');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const MS_PER_DAY = 86_400_000;
   const maxDays = WEEKS_BACK * 7;
+
+  // --- 参加済み非表示UIの追加 ---
+  const filterContainer = document.createElement('div');
+  filterContainer.style.marginBottom = '10px';
+  const hideChk = document.createElement('input');
+  hideChk.type = 'checkbox';
+  hideChk.id = 'hide-participated-chk';
+  
+  const hideLabel = document.createElement('label');
+  hideLabel.style.cursor = 'pointer';
+  hideLabel.appendChild(hideChk);
+  hideLabel.appendChild(document.createTextNode(' 参加済みの回を非表示にする'));
+  
+  filterContainer.appendChild(hideLabel);
+  table.parentNode.insertBefore(filterContainer, table);
+
+  // 非表示状態の復元
+  hideChk.checked = localStorage.getItem('hide-participated') === 'true';
+
+  // フィルタリング実行関数
+  function applyFilter() {
+    const isHide = hideChk.checked;
+    const rows = document.querySelectorAll('#schedule-body tr');
+    rows.forEach(tr => {
+      const chk = tr.querySelector('.chk');
+      if (chk && chk.checked && isHide) {
+        tr.style.display = 'none';
+      } else {
+        tr.style.display = '';
+      }
+    });
+  }
+
+  hideChk.addEventListener('change', () => {
+    localStorage.setItem('hide-participated', hideChk.checked);
+    applyFilter();
+  });
+  // ------------------------------
 
   // 背景色を更新する関数
   function updateCellColor(td, status) {
@@ -116,6 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
     chk.addEventListener('change', () => {
       td.classList.toggle('participated', chk.checked);
       localStorage.setItem(key, chk.checked);
+      applyFilter(); // チェックを切り替えた時にもフィルタを適用
     });
   });
+
+  // 初期ロード時にもフィルタを適用
+  applyFilter();
 });
