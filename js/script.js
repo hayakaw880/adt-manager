@@ -1,21 +1,24 @@
-/* script.js  */
 document.addEventListener('DOMContentLoaded', () => {
   /** ====== ここだけ変えれば挙動を調整できる ====== */
   const WEEKS_BACK = Number(
     new URLSearchParams(location.search).get('weeks') ?? 4  // クエリ ?weeks=6 でも上書き可
   );
 
-  // 火=2, 水=3, 木=4   各日の開始時刻（24h）を早→遅の順に
+  // 月=1, 火=2, 水=3, 木=4, 金=5
+  // 現在のADTは平日16:00と18:00の1日2回開催
+  const TIMES = ['16:00', '18:00'];
   const TIMES_BY_DOW = {
-    2: ['15:30', '17:30', '19:30'], // Tue
-    3: ['16:00', '18:00', '20:00'], // Wed
-    4: ['16:30', '18:30', '20:30'], // Thu
+    1: TIMES, // Mon
+    2: TIMES, // Tue
+    3: TIMES, // Wed
+    4: TIMES, // Thu
+    5: TIMES, // Fri
   };
+  
+  // 難易度は EASY と ALL の2種類に変更
   const DIFFICULTIES = [
-    { slug: 'easy',   label: 'Easy'   },
-    { slug: 'medium', label: 'Medium' },
-    { slug: 'hard',   label: 'Hard'   },
-    { slug: 'all',    label: 'All'    },
+    { slug: 'easy', label: 'Easy' },
+    { slug: 'all',  label: 'All'  },
   ];
   /** ============================================== */
 
@@ -29,15 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
   for (let off = 0; off <= maxDays; off++) {
     const d = new Date(today.getTime() - off * MS_PER_DAY);
     const dow = d.getDay();                // 0=日 … 6=土
-    if (!TIMES_BY_DOW[dow]) continue;      // 火水木以外はスキップ
+    if (!TIMES_BY_DOW[dow]) continue;      // 月〜金以外（土日）はスキップ
 
     const y  = d.getFullYear();
     const m  = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
-    const ymd = `${y}${m}${dd}`;           // 例 20250501
+    const ymd = `${y}${m}${dd}`;           // 例 20260501
 
     TIMES_BY_DOW[dow].forEach((time, idx) => {
-      const slot = idx + 1;                // 1,2,3
+      const slot = idx + 1;                // 16:00=1, 18:00=2
       const tr = document.createElement('tr');
 
       /* 日付＋時刻セル */
@@ -53,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chk.className = 'chk';
 
         const a = document.createElement('a');
+        // 例: https://atcoder.jp/contests/adt_easy_20260501_1
         a.href   = `https://atcoder.jp/contests/adt_${slug}_${ymd}_${slot}`;
         a.target = '_blank';
         a.textContent = label;
