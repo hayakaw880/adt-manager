@@ -148,10 +148,49 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const tbody = document.getElementById('schedule-body');
+  const table = document.querySelector('table');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const MS_PER_DAY = 86_400_000;
   const maxDays = WEEKS_BACK * 7;
+
+  // --- 参加済み非表示UIの追加 ---
+  const filterContainer = document.createElement('div');
+  filterContainer.style.marginBottom = '10px';
+  const hideChk = document.createElement('input');
+  hideChk.type = 'checkbox';
+  hideChk.id = 'hide-participated-chk';
+  
+  const hideLabel = document.createElement('label');
+  hideLabel.style.cursor = 'pointer';
+  hideLabel.appendChild(hideChk);
+  hideLabel.appendChild(document.createTextNode(' 参加済みの回を非表示にする'));
+  
+  filterContainer.appendChild(hideLabel);
+  table.parentNode.insertBefore(filterContainer, table);
+
+  // 非表示状態の復元
+  hideChk.checked = localStorage.getItem('hide-participated') === 'true';
+
+  // フィルタリング実行関数
+  function applyFilter() {
+    const isHide = hideChk.checked;
+    const rows = document.querySelectorAll('#schedule-body tr');
+    rows.forEach(tr => {
+      const chk = tr.querySelector('.chk');
+      if (chk && chk.checked && isHide) {
+        tr.style.display = 'none';
+      } else {
+        tr.style.display = '';
+      }
+    });
+  }
+
+  hideChk.addEventListener('change', () => {
+    localStorage.setItem('hide-participated', hideChk.checked);
+    applyFilter();
+  });
+  // ------------------------------
 
   // 背景色を更新する関数
   function updateCellColor(td, status) {
@@ -173,27 +212,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const slot = idx + 1;
       const tr = document.createElement('tr');
       const contestId = `adt_all_${ymd}_${slot}`;
+      
+      // コンテストのURLを生成
+      const contestUrl = `https://atcoder.jp/contests/${contestId}`;
 
-      /* 日付＋時刻セル */
+      /* 日付＋時刻セル（ここをコンテストへのリンクにする） */
       const tdDate = document.createElement('td');
-      tdDate.textContent = `${y}-${m}-${dd} ${time}`;
+      const dateLink = document.createElement('a');
+      dateLink.href = contestUrl;
+      dateLink.target = '_blank';
+      dateLink.textContent = `${y}-${m}-${dd} ${time}`;
+      tdDate.appendChild(dateLink);
       tr.appendChild(tdDate);
 
-      /* ALL セル（コンテストへのリンクと参加チェック） */
+      /* ALL セル（参加チェックボックスのみ） */
       const tdAll = document.createElement('td');
       const chk = document.createElement('input');
       chk.type = 'checkbox';
       chk.className = 'chk';
-      const contestUrl = `https://atcoder.jp/contests/${contestId}`;
       chk.dataset.key = contestUrl; // 保存用のキーを設定
-
-      const a = document.createElement('a');
-      a.href   = contestUrl;
-      a.target = '_blank';
-      a.textContent = 'All';
-
+      
+      // aタグの追加を削除し、チェックボックスのみ配置
       tdAll.appendChild(chk);
-      tdAll.appendChild(a);
       tr.appendChild(tdAll);
 
       /* 各問題 (A~I) のセル */
@@ -246,8 +286,12 @@ document.addEventListener('DOMContentLoaded', () => {
     chk.addEventListener('change', () => {
       td.classList.toggle('participated', chk.checked);
       localStorage.setItem(key, chk.checked);
+      applyFilter(); // チェックを切り替えた時にもフィルタを適用
     });
   });
+
+  // 初期ロード時にもフィルタを適用
+  applyFilter();
 });
 </file>
 

@@ -1,3 +1,30 @@
+/* --- 全体のレイアウト調整 --- */
+body {
+  max-width: 1000px; /* 全体の最大幅（お好みで変更してください） */
+  margin: 0 auto;    /* 左右の余白を均等にして中央寄せ */
+  padding: 20px;     /* 画面端からの余白 */
+  font-family: sans-serif; /* フォントを少しスッキリさせる */
+  color: #333;
+}
+
+/* --- テーブルのスタイル調整 --- */
+table {
+  width: 100%; /* テーブルの幅をコンテナいっぱいに広げる */
+  border-collapse: collapse; /* セルの隙間をなくしてスッキリさせる */
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc; /* 枠線を追加 */
+  padding: 8px 4px;       /* セル内の余白（上下8px、左右4px） */
+  text-align: center;     /* テキストを中央揃え */
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f2f2f2; /* ヘッダーに少し色をつける */
+}
+
 /* チェックされたセルだけ緑色に（ALL列用） */
 td.participated {
   background-color: #dff0d8 !important;
