@@ -19,8 +19,8 @@ select.status-select {
   cursor: pointer;
 }
 
-/* ステータスごとの背景色（tdに適用） ※ !important を追加 */
-td.status-ac { background-color: #dff0d8 !important; }        /* AC: 薄い緑 */
-td.status-editorial { background-color: #fcf8e3 !important; } /* 解説AC: 薄い黄色 */
-td.status-trying { background-color: #d9edf7 !important; }    /* 挑戦中: 薄い青 */
+/* ステータスごとの背景色（tdに適用） ※ !important を維持 */
+td.status-ac { background-color: #5cb85c !important; }        /* AC: はっきりした緑 */
+td.status-editorial { background-color: #33b5e5 !important; } /* 解説AC: はっきりした青 */
+td.status-trying { background-color: #ffbb33 !important; }    /* 挑戦中: はっきりした黄色 */
 td.status-unattempted { background-color: transparent; }      /* 未挑戦: 透明 */
