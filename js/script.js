@@ -1,46 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
   /** ====== ここだけ変えれば挙動を調整できる ====== */
   const WEEKS_BACK = Number(
-    new URLSearchParams(location.search).get('weeks') ?? 4  // クエリ ?weeks=6 でも上書き可
+    new URLSearchParams(location.search).get('weeks') ?? 4
   );
 
   // 月=1, 火=2, 水=3, 木=4, 金=5
-  // 現在のADTは平日16:00と18:00の1日2回開催
   const TIMES = ['16:00', '18:00'];
   const TIMES_BY_DOW = {
-    1: TIMES, // Mon
-    2: TIMES, // Tue
-    3: TIMES, // Wed
-    4: TIMES, // Thu
-    5: TIMES, // Fri
+    1: TIMES, 2: TIMES, 3: TIMES, 4: TIMES, 5: TIMES,
   };
   
-  // 難易度は EASY と ALL の2種類に変更
+  // 難易度を ALL のみに変更
   const DIFFICULTIES = [
-    { slug: 'easy', label: 'Easy' },
     { slug: 'all',  label: 'All'  },
   ];
   /** ============================================== */
 
   const tbody = document.getElementById('schedule-body');
   const today = new Date();
-  today.setHours(0, 0, 0, 0);              // きょう 00:00 JST
+  today.setHours(0, 0, 0, 0);
   const MS_PER_DAY = 86_400_000;
   const maxDays = WEEKS_BACK * 7;
 
   // ── 日付を今日から古い方へ調べる
   for (let off = 0; off <= maxDays; off++) {
     const d = new Date(today.getTime() - off * MS_PER_DAY);
-    const dow = d.getDay();                // 0=日 … 6=土
-    if (!TIMES_BY_DOW[dow]) continue;      // 月〜金以外（土日）はスキップ
+    const dow = d.getDay();
+    if (!TIMES_BY_DOW[dow]) continue;
 
     const y  = d.getFullYear();
     const m  = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
-    const ymd = `${y}${m}${dd}`;           // 例 20260501
+    const ymd = `${y}${m}${dd}`;
 
     TIMES_BY_DOW[dow].forEach((time, idx) => {
-      const slot = idx + 1;                // 16:00=1, 18:00=2
+      const slot = idx + 1;
       const tr = document.createElement('tr');
 
       /* 日付＋時刻セル */
@@ -56,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chk.className = 'chk';
 
         const a = document.createElement('a');
-        // 例: https://atcoder.jp/contests/adt_easy_20260501_1
         a.href   = `https://atcoder.jp/contests/adt_${slug}_${ymd}_${slot}`;
         a.target = '_blank';
         a.textContent = label;
@@ -66,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.appendChild(td);
       });
 
-      tbody.appendChild(tr);               // 表に追加
+      tbody.appendChild(tr);
     });
   }
 
