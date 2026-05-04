@@ -1,0 +1,254 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+css/
+  style.css
+js/
+  script.js
+.gitignore
+index.html
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+ign
+</file>
+
+<file path="css/style.css">
+/* チェックされたセルだけ緑色に（ALL列用） */
+td.participated {
+  background-color: #dff0d8 !important;
+}
+
+/* ホバー効果 */
+tbody tr:hover td {
+  background-color: #f9f9f9;
+}
+
+/* --- ここから追加：ステータス用のデザイン --- */
+select.status-select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 0.9em;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+/* ステータスごとの背景色（tdに適用） ※ !important を維持 */
+td.status-ac { background-color: #5cb85c !important; }        /* AC: はっきりした緑 */
+td.status-editorial { background-color: #33b5e5 !important; } /* 解説AC: はっきりした青 */
+td.status-trying { background-color: #ffbb33 !important; }    /* 挑戦中: はっきりした黄色 */
+td.status-unattempted { background-color: transparent; }      /* 未挑戦: 透明 */
+</file>
+
+<file path="README.md">
+# adt-manager
+
+AtCoderDailyTrainingの参加記録を管理するツールです
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ADT 管理ツール</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <h1>AtCoder Daily Training 参加管理</h1>
+  <p>ALLのチェックで参加記録を、右側のプルダウンで各問題の進捗を管理できます。</p>
+  <table>
+    <thead>
+      <tr>
+        <th>日付と時刻</th>
+        <th>ALL</th>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+        <th>D</th>
+        <th>E</th>
+        <th>F</th>
+        <th>G</th>
+        <th>H</th>
+        <th>I</th>
+      </tr>
+    </thead>
+    <tbody id="schedule-body">
+      
+    </tbody>
+  </table>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
+</file>
+
+<file path="js/script.js">
+document.addEventListener('DOMContentLoaded', () => {
+  const WEEKS_BACK = Number(new URLSearchParams(location.search).get('weeks') ?? 4);
+
+  // 月=1, 火=2, 水=3, 木=4, 金=5
+  const TIMES = ['16:00', '18:00'];
+  const TIMES_BY_DOW = {
+    1: TIMES, 2: TIMES, 3: TIMES, 4: TIMES, 5: TIMES,
+  };
+  
+  // A~Iの問題リストと、ステータスの選択肢
+  const PROBLEMS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+  const STATUSES = [
+    { value: 'unattempted', label: '未挑戦' },
+    { value: 'ac', label: 'AC' },
+    { value: 'editorial', label: '解説AC' },
+    { value: 'trying', label: '挑戦中' }
+  ];
+
+  const tbody = document.getElementById('schedule-body');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const MS_PER_DAY = 86_400_000;
+  const maxDays = WEEKS_BACK * 7;
+
+  // 背景色を更新する関数
+  function updateCellColor(td, status) {
+    td.classList.remove('status-ac', 'status-editorial', 'status-trying', 'status-unattempted');
+    td.classList.add(`status-${status}`);
+  }
+
+  for (let off = 0; off <= maxDays; off++) {
+    const d = new Date(today.getTime() - off * MS_PER_DAY);
+    const dow = d.getDay();
+    if (!TIMES_BY_DOW[dow]) continue;
+
+    const y  = d.getFullYear();
+    const m  = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const ymd = `${y}${m}${dd}`;
+
+    TIMES_BY_DOW[dow].forEach((time, idx) => {
+      const slot = idx + 1;
+      const tr = document.createElement('tr');
+      const contestId = `adt_all_${ymd}_${slot}`;
+
+      /* 日付＋時刻セル */
+      const tdDate = document.createElement('td');
+      tdDate.textContent = `${y}-${m}-${dd} ${time}`;
+      tr.appendChild(tdDate);
+
+      /* ALL セル（コンテストへのリンクと参加チェック） */
+      const tdAll = document.createElement('td');
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'chk';
+      const contestUrl = `https://atcoder.jp/contests/${contestId}`;
+      chk.dataset.key = contestUrl; // 保存用のキーを設定
+
+      const a = document.createElement('a');
+      a.href   = contestUrl;
+      a.target = '_blank';
+      a.textContent = 'All';
+
+      tdAll.appendChild(chk);
+      tdAll.appendChild(a);
+      tr.appendChild(tdAll);
+
+      /* 各問題 (A~I) のセル */
+      PROBLEMS.forEach(prob => {
+        const tdProb = document.createElement('td');
+        const select = document.createElement('select');
+        select.className = 'status-select';
+        
+        // 保存用キー（例: adt_all_20260501_1_A）
+        const storageKey = `${contestId}_${prob}`;
+
+        // プルダウンの選択肢を作成
+        STATUSES.forEach(st => {
+          const opt = document.createElement('option');
+          opt.value = st.value;
+          opt.textContent = st.label;
+          select.appendChild(opt);
+        });
+
+        // 保存されているステータスを復元（なければ未挑戦）
+        const savedStatus = localStorage.getItem(storageKey) || 'unattempted';
+        select.value = savedStatus;
+        updateCellColor(tdProb, savedStatus);
+
+        // 変更されたらローカルストレージに保存し、色を変える
+        select.addEventListener('change', (e) => {
+          const val = e.target.value;
+          localStorage.setItem(storageKey, val);
+          updateCellColor(tdProb, val);
+        });
+
+        tdProb.appendChild(select);
+        tr.appendChild(tdProb);
+      });
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  /* ALL列の参加チェックボックスの復元と保存 */
+  document.querySelectorAll('input.chk').forEach(chk => {
+    const td  = chk.closest('td');
+    const key = chk.dataset.key;
+
+    if (localStorage.getItem(key) === 'true') {
+      chk.checked = true;
+      td.classList.add('participated');
+    }
+
+    chk.addEventListener('change', () => {
+      td.classList.toggle('participated', chk.checked);
+      localStorage.setItem(key, chk.checked);
+    });
+  });
+});
+</file>
+
+</files>

@@ -42,27 +42,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const slot = idx + 1;
       const tr = document.createElement('tr');
       const contestId = `adt_all_${ymd}_${slot}`;
+      
+      // コンテストのURLを生成
+      const contestUrl = `https://atcoder.jp/contests/${contestId}`;
 
-      /* 日付＋時刻セル */
+      /* 日付＋時刻セル（ここをコンテストへのリンクにする） */
       const tdDate = document.createElement('td');
-      tdDate.textContent = `${y}-${m}-${dd} ${time}`;
+      const dateLink = document.createElement('a');
+      dateLink.href = contestUrl;
+      dateLink.target = '_blank';
+      dateLink.textContent = `${y}-${m}-${dd} ${time}`;
+      tdDate.appendChild(dateLink);
       tr.appendChild(tdDate);
 
-      /* ALL セル（コンテストへのリンクと参加チェック） */
+      /* ALL セル（参加チェックボックスのみ） */
       const tdAll = document.createElement('td');
       const chk = document.createElement('input');
       chk.type = 'checkbox';
       chk.className = 'chk';
-      const contestUrl = `https://atcoder.jp/contests/${contestId}`;
       chk.dataset.key = contestUrl; // 保存用のキーを設定
-
-      const a = document.createElement('a');
-      a.href   = contestUrl;
-      a.target = '_blank';
-      a.textContent = 'All';
-
+      
+      // aタグの追加を削除し、チェックボックスのみ配置
       tdAll.appendChild(chk);
-      tdAll.appendChild(a);
       tr.appendChild(tdAll);
 
       /* 各問題 (A~I) のセル */
